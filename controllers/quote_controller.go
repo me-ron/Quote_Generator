@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"quote-generator-backend/models"
 	"quote-generator-backend/services"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -47,7 +49,24 @@ func (qc *QuoteController) GetQuotesByCategory(c *gin.Context) {
 }
 
 func (qc *QuoteController) GetRandomQuotes(c *gin.Context) {
-    quotes, err := qc.Service.GetRandomQuotes(5) // Default limit to 5
+    // Get limit from query parameters, default to 5 if not provided
+    limit := 5
+    if queryLimit := c.DefaultQuery("limit", "5"); queryLimit != "" {
+        parsedLimit, err := strconv.Atoi(queryLimit)
+        if err == nil {
+            limit = parsedLimit
+        }
+    }
+
+    // Get categories from query parameters
+    categories := c.DefaultQuery("categories", "")
+    var categoryList []string
+    if categories != "" {
+        categoryList = strings.Split(categories, ",")
+    }
+
+    // Fetch random quotes with the limit and categories
+    quotes, err := qc.Service.GetRandomQuotes(limit, categoryList...)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -55,3 +74,4 @@ func (qc *QuoteController) GetRandomQuotes(c *gin.Context) {
 
     c.JSON(http.StatusOK, quotes)
 }
+

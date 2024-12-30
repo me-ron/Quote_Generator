@@ -37,18 +37,35 @@ func (r *QuoteRepository) GetQuotesByCategory(category string) ([]models.Quote, 
     return quotes, nil
 }
 
-func (r *QuoteRepository) GetRandomQuotes(limit int) ([]models.Quote, error) {
+func (r *QuoteRepository) GetRandomQuotes(limit int, categories ...string) ([]models.Quote, error) {
     var quotes []models.Quote
 
-    pipeline := mongo.Pipeline{
-		{{"$sample", bson.D{{"size", limit}}}},
-	}	
+    // Build the match filter
+    var matchFilter bson.M
+    if len(categories) > 0 {
+        // If categories are provided, filter by category
+        matchFilter = bson.M{"category": bson.M{"$in": categories}}
+    }
+
+    // Create the aggregation pipeline
+    pipeline := mongo.Pipeline{}
+
+    if len(matchFilter) > 0 {
+        // Add the match stage if a filter was specified
+        pipeline = append(pipeline, bson.D{{"$match", matchFilter}})
+    }
+
+    // Add the sample stage to randomly select documents
+    pipeline = append(pipeline, bson.D{{"$sample", bson.D{{"size", limit}}}})
+
+    // Run the aggregation pipeline
     cursor, err := r.Collection.Aggregate(context.TODO(), pipeline)
     if err != nil {
         return nil, err
     }
     defer cursor.Close(context.TODO())
 
+    // Decode the results
     for cursor.Next(context.TODO()) {
         var quote models.Quote
         if err := cursor.Decode(&quote); err != nil {

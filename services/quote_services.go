@@ -16,6 +16,6 @@ func (s *QuoteService) GetQuotesByCategory(category string) ([]models.Quote, err
     return s.Repo.GetQuotesByCategory(category)
 }
 
-func (s *QuoteService) GetRandomQuotes(limit int) ([]models.Quote, error) {
-    return s.Repo.GetRandomQuotes(limit)
+func (s *QuoteService) GetRandomQuotes(limit int, categories ...string) ([]models.Quote, error) {
+    return s.Repo.GetRandomQuotes(limit, categories...)
 }
