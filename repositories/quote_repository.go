@@ -12,10 +12,14 @@ type QuoteRepository struct {
     Collection *mongo.Collection
 }
 
+func (r *QuoteRepository) AddQuote(quote models.Quote) error {
+	_, err := r.Collection.InsertOne(context.TODO(), quote)
+	return err
+}
+
 func (r *QuoteRepository) GetQuotesByCategory(category string) ([]models.Quote, error) {
     var quotes []models.Quote
 
-    // Use context.TODO() for the operation
     cursor, err := r.Collection.Find(context.TODO(), bson.M{"category": category})
     if err != nil {
         return nil, err
@@ -36,7 +40,6 @@ func (r *QuoteRepository) GetQuotesByCategory(category string) ([]models.Quote, 
 func (r *QuoteRepository) GetRandomQuotes(limit int) ([]models.Quote, error) {
     var quotes []models.Quote
 
-    // Use context.TODO() for the operation
     pipeline := mongo.Pipeline{
 		{{"$sample", bson.D{{"size", limit}}}},
 	}	

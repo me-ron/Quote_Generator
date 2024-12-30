@@ -8,6 +8,9 @@ import (
 type QuoteService struct {
     Repo *repositories.QuoteRepository
 }
+func (s *QuoteService) AddQuote(quote models.Quote) error {
+    return s.Repo.AddQuote(quote)
+}
 
 func (s *QuoteService) GetQuotesByCategory(category string) ([]models.Quote, error) {
     return s.Repo.GetQuotesByCategory(category)
