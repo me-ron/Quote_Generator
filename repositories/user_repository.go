@@ -47,3 +47,29 @@ func (r *UserRepository) GetFavorites(userID primitive.ObjectID) ([]models.Quote
 
     return quotes, nil
 }
+
+func (r *UserRepository) LoginOrCreate(username string) (primitive.ObjectID, error) {
+	var user models.User
+	filter := bson.M{"username": username}
+
+	err := r.Collection.FindOne(context.TODO(), filter).Decode(&user)
+	if err == mongo.ErrNoDocuments {
+		// User doesn't exist, create a new one
+		newUser := models.User{
+			ID:        primitive.NewObjectID(),
+			Username:  username,
+			Favorites: []primitive.ObjectID{},
+		}
+		_, err := r.Collection.InsertOne(context.TODO(), newUser)
+		if err != nil {
+			return primitive.NilObjectID, err
+		}
+		return newUser.ID, nil
+	} else if err != nil {
+		// Handle other errors
+		return primitive.NilObjectID, err
+	}
+
+	// Return existing user's ID
+	return user.ID, nil
+}

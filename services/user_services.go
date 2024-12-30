@@ -17,3 +17,7 @@ func (s *UserService) AddFavorite(userID primitive.ObjectID, quoteID primitive.O
 func (s *UserService) GetFavorites(userID primitive.ObjectID) ([]models.Quote, error) {
     return s.Repo.GetFavorites(userID)
 }
+
+func (s *UserService) LoginOrCreate(username string) (primitive.ObjectID, error) {
+    return s.Repo.LoginOrCreate(username)
+}
