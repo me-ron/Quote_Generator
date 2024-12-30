@@ -6,6 +6,7 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, qc *controllers.QuoteController, uc *controllers.UserController) {
+    r.POST("/quotes", qc.AddQuote)
     r.GET("/quotes/:category", qc.GetQuotesByCategory)
     r.GET("/quotes/random", qc.GetRandomQuotes)
 	r.POST("/login", uc.LoginOrCreateUser)
