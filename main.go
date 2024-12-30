@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"quote-generator-backend/config"
 	"quote-generator-backend/controllers"
 	"quote-generator-backend/repositories"
@@ -29,5 +30,10 @@ func main() {
     r := gin.Default()
     routes.SetupRoutes(r, quoteController, userController)
 
-    r.Run("0.0.0.0:"+"8000")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" 
+	}
+
+    r.Run("0.0.0.0:"+port)
 }
